@@ -1,5 +1,5 @@
 // Your OpenWeatherMap API Key
-const API_KEY = 'YOUR_API_KEY_HERE';  // Replace with your actual API key
+const API_KEY = '052c09e5eaeccd95f10958d951abcc03';  // Replace with your actual API key
 const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
 // Function to fetch weather data
@@ -29,7 +29,7 @@ function displayWeather(data) {
     const temperature = Math.round(data.main.temp);
     const description = data.weather[0].description;
     const icon = data.weather[0].icon;
-    const iconUrl = `https://api.openweathermap.org/data/2.5/weather?q=London&appid=052c09e5eaeccd95f10958d951abcc03&units=metric`;
+    const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
     
     // Create HTML to display
     const weatherHTML = `
