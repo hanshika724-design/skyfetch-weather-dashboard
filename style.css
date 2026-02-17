@@ -65,6 +65,59 @@ h1 {
     color: #333;
     margin-bottom: 10px;
 }
+/* Style search section */
+.search-section {
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Responsive: stack input & button on small screens */
+@media (max-width: 480px) {
+  .search-section {
+    flex-direction: column;
+  }
+}
+
+/* Style city input */
+#city-input {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: 2px solid #ddd;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+/* Input focus effect */
+#city-input:focus {
+  border-color: #4facfe;
+}
+
+/* Style search button */
+#search-btn {
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+/* Hover effect */
+#search-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Button active (click) effect */
+#search-btn:active {
+  transform: translateY(0);
+}
 
 .temperature {
     font-size: 3.5rem;
