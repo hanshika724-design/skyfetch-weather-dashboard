@@ -1,14 +1,18 @@
 // Your OpenWeatherMap API Key
-const API_KEY = '052c09e5eaeccd95f10958d951abcc03';  // Replace with your actual API key
+const API_KEY = '052c09e5eaeccd95f10958d951abcc03';
+
+// API URLs
 const WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather';
 const FORECAST_URL = 'https://api.openweathermap.org/data/2.5/forecast';
 
+// Weather App Constructor
 function WeatherApp() {
   this.searchBtn = document.getElementById('search-btn');
   this.cityInput = document.getElementById('city-input');
   this.weatherDisplay = document.getElementById('weather-display');
 }
 
+// Initialize App
 WeatherApp.prototype.init = function () {
   this.searchBtn.addEventListener('click', this.handleSearch.bind(this));
   this.cityInput.addEventListener('keypress', (e) => {
@@ -17,6 +21,7 @@ WeatherApp.prototype.init = function () {
   this.showWelcome();
 };
 
+// Welcome UI
 WeatherApp.prototype.showWelcome = function () {
   this.weatherDisplay.innerHTML = `
     <div class="welcome-message">
@@ -25,6 +30,7 @@ WeatherApp.prototype.showWelcome = function () {
   `;
 };
 
+// Loading UI
 WeatherApp.prototype.showLoading = function () {
   this.weatherDisplay.innerHTML = `
     <div class="loading-container">
@@ -34,6 +40,7 @@ WeatherApp.prototype.showLoading = function () {
   `;
 };
 
+// Error UI
 WeatherApp.prototype.showError = function (message) {
   this.weatherDisplay.innerHTML = `
     <div class="error-message">
@@ -43,6 +50,7 @@ WeatherApp.prototype.showError = function (message) {
   `;
 };
 
+// Handle Search
 WeatherApp.prototype.handleSearch = function () {
   const city = this.cityInput.value.trim();
 
@@ -60,6 +68,7 @@ WeatherApp.prototype.handleSearch = function () {
   this.cityInput.value = '';
 };
 
+// Fetch Weather + Forecast
 WeatherApp.prototype.getWeather = async function (city) {
   this.showLoading();
   this.searchBtn.disabled = true;
@@ -87,6 +96,7 @@ WeatherApp.prototype.getWeather = async function (city) {
   }
 };
 
+// Display Current Weather
 WeatherApp.prototype.displayWeather = function (data) {
   const cityName = data.name;
   const temperature = Math.round(data.main.temp);
@@ -100,19 +110,23 @@ WeatherApp.prototype.displayWeather = function (data) {
       <img src="${iconUrl}" alt="${description}" class="weather-icon">
       <div class="temperature">${temperature}°C</div>
       <p class="description">${description}</p>
+
       <h3>5-Day Forecast</h3>
       <div class="forecast-container"></div>
     </div>
   `;
 };
 
+// Process Forecast Data (12 PM only)
 WeatherApp.prototype.processForecastData = function (list) {
-  const daily = list.filter(item => item.dt_txt.includes("12:00:00"));
+  const daily = list.filter(item => item.dt_txt.includes('12:00:00'));
   return daily.slice(0, 5);
 };
 
+// Display Forecast
 WeatherApp.prototype.displayForecast = function (forecastList) {
   const container = document.querySelector('.forecast-container');
+  container.innerHTML = '';
 
   forecastList.forEach(day => {
     const date = new Date(day.dt_txt);
@@ -133,6 +147,6 @@ WeatherApp.prototype.displayForecast = function (forecastList) {
   });
 };
 
-// Create app instance
+// Create App Instance
 const app = new WeatherApp();
 app.init();
