@@ -1,7 +1,7 @@
 // ================================
-// API CONFIG
+// CONFIG
 // ================================
-const API_KEY = '052c09e5eaeccd95f10958d951abcc03'; // your key
+const API_KEY = '052c09e5eaeccd95f10958d951abcc03';
 const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
 // ================================
@@ -10,44 +10,30 @@ const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
 const searchBtn = document.getElementById('search-btn');
 const cityInput = document.getElementById('city-input');
 const weatherDisplay = document.getElementById('weather-display');
-
 const recentSection = document.getElementById('recent-searches-section');
 const recentContainer = document.getElementById('recent-searches-container');
 const clearBtn = document.getElementById('clear-history-btn');
-
-// ================================
-// STATE
-// ================================
-let recentSearches = [];
-const MAX_RECENT = 5;
 
 // ================================
 // UI HELPERS
 // ================================
 function showLoading() {
   weatherDisplay.innerHTML = `
-    <p class="loading">Loading weather data...</p>
+    <p class="loading">Loading weather...</p>
   `;
 }
 
 function showError(message) {
   weatherDisplay.innerHTML = `
-    <p class="loading">${message}</p>
-  `;
-}
-
-function showWelcome() {
-  weatherDisplay.innerHTML = `
-    <div class="welcome-message">
-      <h3>🌍 Welcome to SkyFetch</h3>
-      <p>Search for a city to get started</p>
-      <p><small>Try: London, Paris, Tokyo</small></p>
+    <div class="error-message">
+      ⚠️ <strong>Oops!</strong>
+      <p>${message}</p>
     </div>
   `;
 }
 
 // ================================
-// WEATHER FETCH
+// FETCH WEATHER
 // ================================
 async function getWeather(city) {
   showLoading();
@@ -59,15 +45,13 @@ async function getWeather(city) {
   try {
     const response = await axios.get(url);
     displayWeather(response.data);
-
-    saveRecentSearch(city);
-    localStorage.setItem('lastCity', city);
-
+    saveToRecent(city);
+    saveLastCity(city);
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      showError('City not found. Please try again.');
+      showError('City not found. Please check the spelling.');
     } else {
-      showError('Something went wrong. Please try later.');
+      showError('Something went wrong. Try again later.');
     }
   } finally {
     searchBtn.disabled = false;
@@ -79,94 +63,86 @@ async function getWeather(city) {
 // DISPLAY WEATHER
 // ================================
 function displayWeather(data) {
-  const iconUrl = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+  const cityName = data.name;
+  const temperature = Math.round(data.main.temp);
+  const description = data.weather[0].description;
+  const icon = data.weather[0].icon;
 
   weatherDisplay.innerHTML = `
     <div class="weather-info">
-      <h2 class="city-name">${data.name}</h2>
-      <img src="${iconUrl}" class="weather-icon">
-      <div class="temperature">${Math.round(data.main.temp)}°C</div>
-      <p class="description">${data.weather[0].description}</p>
+      <h2 class="city-name">${cityName}</h2>
+      <img 
+        src="https://openweathermap.org/img/wn/${icon}@2x.png" 
+        alt="${description}" 
+        class="weather-icon"
+      />
+      <div class="temperature">${temperature}°C</div>
+      <p class="description">${description}</p>
     </div>
   `;
 }
 
 // ================================
-// RECENT SEARCHES (localStorage)
+// LOCAL STORAGE – RECENT SEARCHES
 // ================================
-function loadRecentSearches() {
-  const saved = localStorage.getItem('recentSearches');
-  if (saved) {
-    recentSearches = JSON.parse(saved);
-  }
-  displayRecentSearches();
+function getRecentSearches() {
+  return JSON.parse(localStorage.getItem('recentCities')) || [];
 }
 
-function saveRecentSearch(city) {
-  const cityName =
-    city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+function saveToRecent(city) {
+  let cities = getRecentSearches();
+  city = city.toLowerCase();
 
-  recentSearches = recentSearches.filter(c => c !== cityName);
-  recentSearches.unshift(cityName);
+  cities = cities.filter(c => c !== city);
+  cities.unshift(city);
 
-  if (recentSearches.length > MAX_RECENT) {
-    recentSearches.pop();
-  }
+  if (cities.length > 5) cities.pop();
 
-  localStorage.setItem(
-    'recentSearches',
-    JSON.stringify(recentSearches)
-  );
-
-  displayRecentSearches();
+  localStorage.setItem('recentCities', JSON.stringify(cities));
+  renderRecentSearches();
 }
 
-function displayRecentSearches() {
+function renderRecentSearches() {
+  const cities = getRecentSearches();
   recentContainer.innerHTML = '';
 
-  if (recentSearches.length === 0) {
+  if (cities.length === 0) {
     recentSection.style.display = 'none';
     return;
   }
 
   recentSection.style.display = 'block';
 
-  recentSearches.forEach(city => {
+  cities.forEach(city => {
     const btn = document.createElement('button');
     btn.className = 'recent-search-btn';
     btn.textContent = city;
-
-    btn.addEventListener('click', () => {
-      cityInput.value = city;
-      getWeather(city);
-    });
-
+    btn.addEventListener('click', () => getWeather(city));
     recentContainer.appendChild(btn);
   });
 }
 
 function clearHistory() {
-  if (confirm('Clear all recent searches?')) {
-    recentSearches = [];
-    localStorage.removeItem('recentSearches');
-    displayRecentSearches();
-  }
+  localStorage.removeItem('recentCities');
+  renderRecentSearches();
 }
 
 // ================================
-// LOAD LAST CITY
+// LAST SEARCHED CITY
 // ================================
+function saveLastCity(city) {
+  localStorage.setItem('lastCity', city);
+}
+
 function loadLastCity() {
-  const lastCity = localStorage.getItem('lastCity');
-  if (lastCity) {
-    getWeather(lastCity);
-  } else {
-    showWelcome();
+  const city = localStorage.getItem('lastCity');
+  if (city) {
+    getWeather(city);
   }
 }
 
 // ================================
-// EVENTS
+// EVENT LISTENERS
 // ================================
 searchBtn.addEventListener('click', () => {
   const city = cityInput.value.trim();
@@ -185,7 +161,7 @@ searchBtn.addEventListener('click', () => {
   cityInput.value = '';
 });
 
-cityInput.addEventListener('keypress', e => {
+cityInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     searchBtn.click();
   }
@@ -198,5 +174,5 @@ if (clearBtn) {
 // ================================
 // INIT ON PAGE LOAD
 // ================================
-loadRecentSearches();
+renderRecentSearches();
 loadLastCity();
