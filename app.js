@@ -1,18 +1,22 @@
-// Your OpenWeatherMap API Key
+// ================================
+// CONFIG
+// ================================
 const API_KEY = '052c09e5eaeccd95f10958d951abcc03';
-
-// API URLs
 const WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather';
 const FORECAST_URL = 'https://api.openweathermap.org/data/2.5/forecast';
 
-// Weather App Constructor
+// ================================
+// WEATHER APP CONSTRUCTOR
+// ================================
 function WeatherApp() {
   this.searchBtn = document.getElementById('search-btn');
   this.cityInput = document.getElementById('city-input');
   this.weatherDisplay = document.getElementById('weather-display');
 }
 
-// Initialize App
+// ================================
+// INIT
+// ================================
 WeatherApp.prototype.init = function () {
   this.searchBtn.addEventListener('click', this.handleSearch.bind(this));
   this.cityInput.addEventListener('keypress', (e) => {
@@ -21,26 +25,25 @@ WeatherApp.prototype.init = function () {
   this.showWelcome();
 };
 
-// Welcome UI
+// ================================
+// UI STATES
+// ================================
 WeatherApp.prototype.showWelcome = function () {
   this.weatherDisplay.innerHTML = `
     <div class="welcome-message">
-      Enter a city name to get started! 🌍
+      Enter a city name to get started 🌍
     </div>
   `;
 };
 
-// Loading UI
 WeatherApp.prototype.showLoading = function () {
   this.weatherDisplay.innerHTML = `
     <div class="loading-container">
-      <div class="spinner"></div>
       <p>Loading weather...</p>
     </div>
   `;
 };
 
-// Error UI
 WeatherApp.prototype.showError = function (message) {
   this.weatherDisplay.innerHTML = `
     <div class="error-message">
@@ -50,7 +53,9 @@ WeatherApp.prototype.showError = function (message) {
   `;
 };
 
-// Handle Search
+// ================================
+// HANDLE SEARCH
+// ================================
 WeatherApp.prototype.handleSearch = function () {
   const city = this.cityInput.value.trim();
 
@@ -68,7 +73,9 @@ WeatherApp.prototype.handleSearch = function () {
   this.cityInput.value = '';
 };
 
-// Fetch Weather + Forecast
+// ================================
+// FETCH WEATHER + FORECAST
+// ================================
 WeatherApp.prototype.getWeather = async function (city) {
   this.showLoading();
   this.searchBtn.disabled = true;
@@ -96,57 +103,21 @@ WeatherApp.prototype.getWeather = async function (city) {
   }
 };
 
-// Display Current Weather
+// ================================
+// DISPLAY CURRENT WEATHER
+// ================================
 WeatherApp.prototype.displayWeather = function (data) {
   const cityName = data.name;
   const temperature = Math.round(data.main.temp);
   const description = data.weather[0].description;
   const icon = data.weather[0].icon;
-  const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
   this.weatherDisplay.innerHTML = `
     <div class="weather-info">
-      <h2 class="city-name">${cityName}</h2>
-      <img src="${iconUrl}" alt="${description}" class="weather-icon">
+      <h2>${cityName}</h2>
+      <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${description}">
       <div class="temperature">${temperature}°C</div>
-      <p class="description">${description}</p>
+      <p>${description}</p>
 
       <h3>5-Day Forecast</h3>
-      <div class="forecast-container"></div>
-    </div>
-  `;
-};
-
-// Process Forecast Data (12 PM only)
-WeatherApp.prototype.processForecastData = function (list) {
-  const daily = list.filter(item => item.dt_txt.includes('12:00:00'));
-  return daily.slice(0, 5);
-};
-
-// Display Forecast
-WeatherApp.prototype.displayForecast = function (forecastList) {
-  const container = document.querySelector('.forecast-container');
-  container.innerHTML = '';
-
-  forecastList.forEach(day => {
-    const date = new Date(day.dt_txt);
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-    const temp = Math.round(day.main.temp);
-    const desc = day.weather[0].description;
-    const icon = day.weather[0].icon;
-    const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-
-    container.innerHTML += `
-      <div class="forecast-card">
-        <h4>${dayName}</h4>
-        <img src="${iconUrl}" alt="${desc}">
-        <p>${temp}°C</p>
-        <small>${desc}</small>
-      </div>
-    `;
-  });
-};
-
-// Create App Instance
-const app = new WeatherApp();
-app.init();
+      <div
