@@ -36,6 +36,127 @@ h1 {
     font-size: 1rem;
 }
 
+/* =========================
+   Search Section
+========================= */
+.search-section {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        flex-direction: column;
+    }
+}
+
+#city-input {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 2px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#city-input:focus {
+    border-color: #4facfe;
+}
+
+#search-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+#search-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+#search-btn:active {
+    transform: translateY(0);
+}
+
+/* =========================
+   Recent Searches Section
+========================= */
+.recent-searches-section {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.recent-header h4 {
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 600;
+}
+
+#recent-searches-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Recent search buttons */
+.recent-search-btn {
+    padding: 8px 16px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+.recent-search-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.recent-search-btn:active {
+    transform: scale(0.95);
+}
+
+/* Clear history button */
+.clear-history-btn {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.clear-history-btn:hover {
+    background: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
+}
+
+/* =========================
+   Weather Display
+========================= */
 #weather-display {
     margin-top: 30px;
 }

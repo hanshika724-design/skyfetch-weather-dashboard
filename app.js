@@ -1,21 +1,28 @@
-// Your OpenWeatherMap API Key
-const API_KEY = '052c09e5eaeccd95f10958d951abcc03';  // Replace with your actual API key
+// ================================
+// CONFIG
+// ================================
+const API_KEY = '052c09e5eaeccd95f10958d951abcc03';
 const API_URL = 'https://api.openweathermap.org/data/2.5/weather';
+
+// ================================
+// DOM ELEMENTS
+// ================================
 const searchBtn = document.getElementById('search-btn');
 const cityInput = document.getElementById('city-input');
 const weatherDisplay = document.getElementById('weather-display');
+const recentSection = document.getElementById('recent-searches-section');
+const recentContainer = document.getElementById('recent-searches-container');
+const clearBtn = document.getElementById('clear-history-btn');
 
-// Loading UI
+// ================================
+// UI HELPERS
+// ================================
 function showLoading() {
   weatherDisplay.innerHTML = `
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Loading weather...</p>
-    </div>
+    <p class="loading">Loading weather...</p>
   `;
 }
 
-// Error UI
 function showError(message) {
   weatherDisplay.innerHTML = `
     <div class="error-message">
@@ -25,7 +32,9 @@ function showError(message) {
   `;
 }
 
-// Fetch Weather (Async/Await)
+// ================================
+// FETCH WEATHER
+// ================================
 async function getWeather(city) {
   showLoading();
   searchBtn.disabled = true;
@@ -35,15 +44,14 @@ async function getWeather(city) {
 
   try {
     const response = await axios.get(url);
-    console.log('Weather Data:', response.data);
     displayWeather(response.data);
+    saveToRecent(city);
+    saveLastCity(city);
   } catch (error) {
-    console.error('Error:', error);
-
     if (error.response && error.response.status === 404) {
-      showError('City not found. Please check the spelling and try again.');
+      showError('City not found. Please check the spelling.');
     } else {
-      showError('Something went wrong. Please try again later.');
+      showError('Something went wrong. Try again later.');
     }
   } finally {
     searchBtn.disabled = false;
@@ -51,29 +59,92 @@ async function getWeather(city) {
   }
 }
 
-// Display Weather
+// ================================
+// DISPLAY WEATHER
+// ================================
 function displayWeather(data) {
   const cityName = data.name;
   const temperature = Math.round(data.main.temp);
   const description = data.weather[0].description;
   const icon = data.weather[0].icon;
-  const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
-  const weatherHTML = `
+  weatherDisplay.innerHTML = `
     <div class="weather-info">
       <h2 class="city-name">${cityName}</h2>
-      <img src="${iconUrl}" alt="${description}" class="weather-icon">
+      <img 
+        src="https://openweathermap.org/img/wn/${icon}@2x.png" 
+        alt="${description}" 
+        class="weather-icon"
+      />
       <div class="temperature">${temperature}°C</div>
       <p class="description">${description}</p>
     </div>
   `;
-
-  weatherDisplay.innerHTML = weatherHTML;
-  cityInput.focus();
 }
 
-// Button Click
-searchBtn.addEventListener('click', function () {
+// ================================
+// LOCAL STORAGE – RECENT SEARCHES
+// ================================
+function getRecentSearches() {
+  return JSON.parse(localStorage.getItem('recentCities')) || [];
+}
+
+function saveToRecent(city) {
+  let cities = getRecentSearches();
+  city = city.toLowerCase();
+
+  cities = cities.filter(c => c !== city);
+  cities.unshift(city);
+
+  if (cities.length > 5) cities.pop();
+
+  localStorage.setItem('recentCities', JSON.stringify(cities));
+  renderRecentSearches();
+}
+
+function renderRecentSearches() {
+  const cities = getRecentSearches();
+  recentContainer.innerHTML = '';
+
+  if (cities.length === 0) {
+    recentSection.style.display = 'none';
+    return;
+  }
+
+  recentSection.style.display = 'block';
+
+  cities.forEach(city => {
+    const btn = document.createElement('button');
+    btn.className = 'recent-search-btn';
+    btn.textContent = city;
+    btn.addEventListener('click', () => getWeather(city));
+    recentContainer.appendChild(btn);
+  });
+}
+
+function clearHistory() {
+  localStorage.removeItem('recentCities');
+  renderRecentSearches();
+}
+
+// ================================
+// LAST SEARCHED CITY
+// ================================
+function saveLastCity(city) {
+  localStorage.setItem('lastCity', city);
+}
+
+function loadLastCity() {
+  const city = localStorage.getItem('lastCity');
+  if (city) {
+    getWeather(city);
+  }
+}
+
+// ================================
+// EVENT LISTENERS
+// ================================
+searchBtn.addEventListener('click', () => {
   const city = cityInput.value.trim();
 
   if (!city) {
@@ -90,9 +161,18 @@ searchBtn.addEventListener('click', function () {
   cityInput.value = '';
 });
 
-// Enter Key Support
-cityInput.addEventListener('keypress', function (event) {
-  if (event.key === 'Enter') {
+cityInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
     searchBtn.click();
   }
 });
+
+if (clearBtn) {
+  clearBtn.addEventListener('click', clearHistory);
+}
+
+// ================================
+// INIT ON PAGE LOAD
+// ================================
+renderRecentSearches();
+loadLastCity();
