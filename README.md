@@ -6,7 +6,7 @@ SkyFetch is a responsive weather dashboard built using **HTML, CSS, and JavaScri
 
 ## 🚀 Live Demo
 🔗 [View Live Project](#)  
-(Add your Netlify/Vercel/GitHub Pages link here)
+https://hanshika724-design.github.io/skyfetch-weather-dashboard/
 
 ---
 
